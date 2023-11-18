@@ -15,7 +15,7 @@ export class ProductService extends Stack {
       restApiName: 'ProductServiceAPI',
       defaultCorsPreflightOptions: {
         allowOrigins: Cors.ALL_ORIGINS,
-        allowMethods: ['GET'],
+        allowMethods: Cors.ALL_METHODS,
       },
     });
 
