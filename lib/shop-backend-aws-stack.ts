@@ -20,12 +20,12 @@ export class ProductService extends Stack {
     });
 
     const getProductsList = new NodejsFunction(this, 'GetProductsList', {
-      entry: '',
+      entry: 'resources/route-handlers/products.ts',
       handler: 'handler',
     });
 
     const getProductById = new NodejsFunction(this, 'GetProductsById', {
-      entry: '',
+      entry: 'resources/route-handlers/product.ts',
       handler: 'handler',
     });
 
