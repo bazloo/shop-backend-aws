@@ -1,4 +1,4 @@
-export const PRODUCTS = [
+const PRODUCTS = [
     {
         id: '1',
         title: 'Prudence',
@@ -28,3 +28,5 @@ export const PRODUCTS = [
         count: 0,
     },
 ];
+
+export const getProducts = () => PRODUCTS;

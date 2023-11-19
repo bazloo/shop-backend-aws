@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { PRODUCTS } from "../../mock-data/products";
+import { getProducts } from "../../mock-data/products";
 
 export const handler = async (event: APIGatewayProxyEvent) => {
     try {
@@ -10,9 +10,11 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             };
         }
 
+        const products = getProducts();
+
         return {
             statusCode: 200,
-            body: JSON.stringify(PRODUCTS),
+            body: JSON.stringify(products),
         };
     } catch (error) {
         console.log(error);
