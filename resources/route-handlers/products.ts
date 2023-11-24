@@ -1,5 +1,9 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getProducts } from "../../mock-data/products";
+import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { ScanCommand } from '@aws-sdk/lib-dynamodb';
+
+const dynamodb = new DynamoDB();
+
 
 export const handler = async (event: APIGatewayProxyEvent) => {
     try {
@@ -10,11 +14,38 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             };
         }
 
-        const products = getProducts();
+        const [products, stocks] = await Promise.all([
+            await dynamodb.send(
+                new ScanCommand({
+                    TableName: process.env.PRODUCTS_TABLE_NAME,
+                })
+            ),
+            dynamodb.send(
+                new ScanCommand({
+                    TableName: process.env.STOCKS_TABLE_NAME,
+                })
+            ),
+        ]);
+
+        let productsData;
+
+        if (
+            stocks &&
+            stocks.Items &&
+            products &&
+            products.Items
+        ) {
+            const stocksMap = stocks.Items.reduce((acc: Map<string, { count: number }>, item: { id: string, count: number}) => {
+                acc.set(item.id, { count: item.count });
+                return acc;
+            }, new Map()) as Map<string, { id: string, count: number }>
+
+            productsData = products.Items.map((product: { id: string }) => ({ ...product, ...stocksMap.get(product.id) }));
+        }
 
         return {
             statusCode: 200,
-            body: JSON.stringify(products),
+            body: JSON.stringify(productsData || []),
         };
     } catch (error) {
         console.log(error);
