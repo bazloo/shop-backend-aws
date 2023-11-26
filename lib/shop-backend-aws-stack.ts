@@ -35,18 +35,36 @@ export class ProductService extends Stack {
     const getProductById = new NodejsFunction(this, 'GetProductsById', {
       entry: 'resources/route-handlers/product.ts',
       handler: 'handler',
+      environment: {
+        PRODUCTS_TABLE_NAME: 'Products', // TODO refactor
+        STOCKS_TABLE_NAME: 'Stocks',
+      },
     });
 
-    const productList = api.root.addResource('products');
-    const productById = productList.addResource('{id}');
+    const createProduct = new NodejsFunction(this, 'CreateProduct', {
+      entry: 'resources/route-handlers/createProduct.ts',
+      handler: 'handler',
+      environment: {
+        PRODUCTS_TABLE_NAME: 'Products', // TODO refactor
+        STOCKS_TABLE_NAME: 'Stocks',
+      },
+    });
+
+    const products = api.root.addResource('products');
+    const productById = products.addResource('{id}');
 
     const productListIntegration = new LambdaIntegration(getProductsList);
     const productIntegration = new LambdaIntegration(getProductById);
+    const createProductIntegration = new LambdaIntegration(getProductById);
 
-    productList.addMethod('GET', productListIntegration);
+    products.addMethod('GET', productListIntegration);
+    products.addMethod('POST', createProductIntegration);
     productById.addMethod('GET', productIntegration);
 
     productsTable.grantReadData(getProductsList);
     stocksTable.grantReadData(getProductsList);
+
+    productsTable.grantReadWriteData(createProduct);
+    stocksTable.grantReadWriteData(createProduct);
   }
 }

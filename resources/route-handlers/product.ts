@@ -1,5 +1,8 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getProducts } from "../../mock-data/products";
+import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { GetCommand } from '@aws-sdk/lib-dynamodb';
+
+const dynamodb = new DynamoDB();
 
 export const handler = async (event: APIGatewayProxyEvent) => {
     const id = event.pathParameters?.id;
@@ -19,11 +22,16 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             };
         }
 
-        const products = getProducts();
+        const result = await dynamodb.send(
+            new GetCommand({
+                TableName: process.env.TABLE_NAME,
+                Key: {
+                    pk: `POST#${id}`,
+                },
+            })
+        );
 
-        const product = products.find((product) => product.id === id);
-
-        if (!product) {
+        if (!result.Item) {
             return {
                 statusCode: 404,
                 body: JSON.stringify({ message: `Product with ${id} does not exist` }),
@@ -32,7 +40,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify(product),
+            body: JSON.stringify(result.Item),
         };
     } catch (error) {
         console.log(error);
