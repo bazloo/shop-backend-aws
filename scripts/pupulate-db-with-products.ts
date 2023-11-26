@@ -1,4 +1,3 @@
-import { execa } from 'execa';
 const { exec } = require("child_process");
 import { getProducts, getStocks } from "../mock-data/products";
 import { dataToItem } from 'dynamo-converters';

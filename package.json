@@ -31,7 +31,6 @@
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
     "dynamo-converters": "^8.0.6",
-    "execa": "^8.0.1",
     "source-map-support": "^0.5.21",
     "tsx": "^4.5.0"
   }
