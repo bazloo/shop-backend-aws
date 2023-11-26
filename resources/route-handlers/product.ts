@@ -24,9 +24,9 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
         const result = await dynamodb.send(
             new GetCommand({
-                TableName: process.env.TABLE_NAME,
+                TableName: process.env.PRODUCTS_TABLE_NAME,
                 Key: {
-                    pk: `POST#${id}`,
+                    id,
                 },
             })
         );
