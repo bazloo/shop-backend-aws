@@ -7,13 +7,6 @@ const dynamodb = new DynamoDB();
 
 export const handler = async (event: APIGatewayProxyEvent) => {
     try {
-        if (event.httpMethod !== 'GET') {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ message: 'Not available HTTP method for this route' }),
-            };
-        }
-
         const [products, stocks] = await Promise.all([
             await dynamodb.send(
                 new ScanCommand({
@@ -44,6 +37,10 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         } // TODO refactor
 
         return {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true,
+            },
             statusCode: 200,
             body: JSON.stringify(productsData || []),
         };
