@@ -35,13 +35,13 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             products &&
             products.Items
         ) {
-            const stocksMap = stocks.Items.reduce((acc: Map<string, { count: number }>, item: { id: string, count: number}) => {
-                acc.set(item.id, { count: item.count });
+            const stocksMap = stocks.Items.reduce((acc: Map<string, { count: number }>, item: { product_id: string, count: number}) => {
+                acc.set(item.product_id, { count: item.count });
                 return acc;
-            }, new Map()) as Map<string, { id: string, count: number }>
+            }, new Map()) as Map<string, { count: number }>
 
             productsData = products.Items.map((product: { id: string }) => ({ ...product, ...stocksMap.get(product.id) }));
-        }
+        } // TODO refactor
 
         return {
             statusCode: 200,

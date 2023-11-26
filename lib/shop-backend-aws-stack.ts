@@ -1,4 +1,4 @@
-import { Stack, StackProps, RemovalPolicy, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   Cors,
@@ -6,19 +6,14 @@ import {
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { AttributeType, Table, BillingMode } from "aws-cdk-lib/aws-dynamodb";
+import { Table } from "aws-cdk-lib/aws-dynamodb";
 
 export class ProductService extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const productsTable = Table.fromTableName(this, 'Products-table', 'Products'); // TODO refactor
-
-    const stocksTable = new Table(this, 'DbTable', {
-      partitionKey: { name: 'id', type: AttributeType.STRING },
-      removalPolicy: RemovalPolicy.DESTROY,
-      billingMode: BillingMode.PAY_PER_REQUEST,
-    });
+    const stocksTable = Table.fromTableName(this, 'Stocks-table', 'Stocks');
 
     const api = new RestApi(this, 'RestAPI', {
       restApiName: 'ProductServiceAPI',
@@ -33,7 +28,7 @@ export class ProductService extends Stack {
       handler: 'handler',
       environment: {
         PRODUCTS_TABLE_NAME: 'Products', // TODO refactor
-        STOCKS_TABLE_NAME: stocksTable.tableName,
+        STOCKS_TABLE_NAME: 'Stocks',
       },
     });
 
