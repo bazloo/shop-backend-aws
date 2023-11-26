@@ -5,9 +5,11 @@ import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 const dynamodb = new DynamoDB();
 
 export const handler = async (event: APIGatewayProxyEvent) => {
+    console.log(`GET_PRODUCT_REQUEST: product id: ${event.pathParameters?.id}`);
     const id = event.pathParameters?.id;
 
     if (!id) {
+        console.log(`GET_PRODUCT_REQUEST: Missing path parameter: id`);
         return {
             statusCode: 400,
             body: JSON.stringify({ message: 'Missing path parameter: id' }),
@@ -49,6 +51,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         }
 
         const { count = 0 } = stocks.Items.at(0);
+
+        console.log(`GET_PRODUCT_REQUEST: SUCCESS`);
 
         return {
             statusCode: 200,

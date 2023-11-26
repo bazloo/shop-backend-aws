@@ -6,6 +6,7 @@ const dynamodb = new DynamoDB();
 
 
 export const handler = async (event: APIGatewayProxyEvent) => {
+    console.log(`GET_PRODUCTS_REQUEST`);
     try {
         const [products, stocks] = await Promise.all([
             await dynamodb.send(
@@ -35,6 +36,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
             productsData = products.Items.map((product: { id: string }) => ({ ...product, ...stocksMap.get(product.id) }));
         } // TODO refactor
+
+        console.log(`GET_PRODUCTS_REQUEST: SUCCESS`);
 
         return {
             headers: {
