@@ -1,32 +1,31 @@
+import { randomUUID } from "node:crypto";
+
 const PRODUCTS = [
     {
-        id: '1',
+        id: randomUUID(),
         title: 'Prudence',
-        price: Infinity,
-        description: '(φρόνησις, phrónēsis; Latin: prudentia; also Wisdom, Sophia, sapientia), the ability to discern the appropriate course of action to be taken in a given situation at the appropriate time.',
-        count: 0,
+        price: 0,
+        description: 'the ability to discern the appropriate course of action to be taken in a given situation at the appropriate time.',
     },
     {
-        id: '2',
+        id: randomUUID(),
         title: 'Fortitude',
-        price: Infinity,
-        description: '(ἀνδρεία, andreía; Latin: fortitudo): also termed courage, forbearance, strength, endurance, and the ability to confront fear, uncertainty, and intimidation.',
-        count: 0,
+        price: 0,
+        description: ' also termed courage, forbearance, strength, endurance, and the ability to confront fear, uncertainty, and intimidation.',
     },
     {
-        id: '3',
+        id: randomUUID(),
         title: 'Temperance',
-        price: Infinity,
-        description: '(σωφροσύνη, sōphrosýnē; Latin: temperantia): also known as restraint, the practice of self-control, abstention, discretion, and moderation tempering the appetition. Plato considered sōphrosynē, which may also be translated as sound-mindedness, to be the most important virtue.',
-        count: 0,
+        price: 0,
+        description: 'also known as restraint, the practice of self-control, abstention, discretion, and moderation tempering the appetition. Plato considered sōphrosynē, which may also be translated as sound-mindedness, to be the most important virtue.',
     },
     {
-        id: '4',
+        id: randomUUID(),
         title: 'Justice',
-        price: Infinity,
-        description: ' (δικαιοσύνη, dikaiosýnē; Latin: iustitia): also considered as fairness;[6] the Greek word also having the meaning of righteousness.',
-        count: 0,
+        price: 0,
+        description: 'also considered as fairness; the Greek word also having the meaning of righteousness.',
     },
 ];
 
 export const getProducts = () => PRODUCTS;
+export const getStocks = () => PRODUCTS.map(({ id }) => ({ product_id: id, count: 0 }));
