@@ -10,7 +10,8 @@
     "test": "jest",
     "deploy": "cdk deploy",
     "destroy": "cdk destroy",
-    "bootstrap": "cdk bootstrap --profile=default"
+    "bootstrap": "cdk bootstrap --profile=default",
+    "populate": "tsx scripts/pupulate-db-with-products.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.8",
@@ -23,10 +24,14 @@
     "typescript": "~5.2.2"
   },
   "dependencies": {
+    "@aws-sdk/lib-dynamodb": "^3.454.0",
     "@types/aws-lambda": "^8.10.126",
+    "@types/uuid": "^9.0.7",
     "aws-cdk-lib": "2.106.1",
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
-    "source-map-support": "^0.5.21"
+    "dynamo-converters": "^8.0.6",
+    "source-map-support": "^0.5.21",
+    "tsx": "^4.5.0"
   }
 }
