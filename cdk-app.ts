@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { ProductService } from './product-service/product-service-stack';
+import { ProductService } from './services/product-service/product-service-stack';
 import { Cors, RestApi } from "aws-cdk-lib/aws-apigateway";
 import {Stack} from "aws-cdk-lib";
 import { Construct } from "constructs";
-import  { ImportService } from "./import-service/import-service-stack";
+import  { ImportService } from "./services/import-service/import-service-stack";
 
 class RootStack extends Stack {
     constructor(scope: Construct) {
