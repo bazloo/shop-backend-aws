@@ -21,6 +21,9 @@ export class ImportService extends NestedStack {
         const importProductsFile = new NodejsFunction(this, 'import-products-file', {
             entry: 'services/import-service/lambdas/importProductFile.ts',
             handler: 'handler',
+            environment: {
+                UPLOAD_BUCKET_NAME: 'store-imports-bucket',
+            }
         });
 
         // const importFileParser = new NodejsFunction(this, 'import-file-parser', {
@@ -32,7 +35,11 @@ export class ImportService extends NestedStack {
 
         const importIntegration = new LambdaIntegration(importProductsFile);
 
-        const method = importRoute.addMethod('GET', importIntegration);
+        const method = importRoute.addMethod('GET', importIntegration, {
+            requestParameters: {
+                "method.request.querystring.name": true,
+            }
+        });
 
         this.methods = [method];
     }
