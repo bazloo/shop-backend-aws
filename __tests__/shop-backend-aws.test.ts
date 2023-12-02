@@ -1,5 +1,5 @@
-import { handler as productsHandler } from "../services/product-service/resources/route-handlers/getProducts";
-import { handler as  productHandler } from "../services/product-service/resources/route-handlers/getProduct";
+import { handler as productsHandler } from "../services/product-service/lambdas/getProducts";
+import { handler as  productHandler } from "../services/product-service/lambdas/getProduct";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import {
     APIGatewayProxyEventHeaders,
