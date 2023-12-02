@@ -1,4 +1,4 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { NestedStack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   Cors,
@@ -16,19 +16,16 @@ const environment = {
   STOCKS_TABLE_NAME,
 };
 
-export class ProductService extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+export class ProductService extends NestedStack {
+  constructor(scope: Construct, props: { restApiId: string, restApiRootResourceId: string } & StackProps) {
+    super(scope, 'ProductService', props);
 
     const productsTable = Table.fromTableName(this, 'Products-table', PRODUCTS_TABLE_NAME);
     const stocksTable = Table.fromTableName(this, 'Stocks-table', STOCKS_TABLE_NAME);
 
-    const api = new RestApi(this, 'RestAPI', {
-      restApiName: 'ProductServiceAPI',
-      defaultCorsPreflightOptions: {
-        allowOrigins: Cors.ALL_ORIGINS,
-        allowMethods: Cors.ALL_METHODS,
-      },
+    const api = RestApi.fromRestApiAttributes(this, 'RestApi', {
+      restApiId: props.restApiId,
+      rootResourceId: props.restApiRootResourceId,
     });
 
     const getProductsList = new NodejsFunction(this, 'GetProductsList', {
@@ -49,16 +46,16 @@ export class ProductService extends Stack {
       environment,
     });
 
-    const products = api.root.addResource('products');
-    const productById = products.addResource('{id}');
+    const productsRoute = api.root.addResource('products');
+    const getProductByIdRoute = productsRoute.addResource('{id}');
 
     const productListIntegration = new LambdaIntegration(getProductsList);
     const productIntegration = new LambdaIntegration(getProductById);
     const createProductIntegration = new LambdaIntegration(createProduct);
 
-    products.addMethod('GET', productListIntegration);
-    products.addMethod('POST', createProductIntegration);
-    productById.addMethod('GET', productIntegration);
+    productsRoute.addMethod('GET', productListIntegration);
+    productsRoute.addMethod('POST', createProductIntegration);
+    getProductByIdRoute.addMethod('GET', productIntegration);
 
     productsTable.grantReadData(getProductsList);
     stocksTable.grantReadData(getProductsList);
