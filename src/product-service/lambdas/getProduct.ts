@@ -1,8 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { DynamoDB } from '@aws-sdk/client-dynamodb';
-import { QueryCommand } from '@aws-sdk/lib-dynamodb';
-
-const dynamodb = new DynamoDB();
+import { getProductById } from "../repository";
 
 export const handler = async (event: APIGatewayProxyEvent) => {
     console.log(`GET_PRODUCT_REQUEST: product id: ${event.pathParameters?.id}`);
@@ -17,51 +14,17 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     }
 
     try {
-        const [products, stocks] = await Promise.all([
-            dynamodb.send(
-                new QueryCommand({
-                    TableName: process.env.PRODUCTS_TABLE_NAME,
-                    KeyConditionExpression: "id = :id",
-                    ExpressionAttributeValues: {
-                        ":id": id,
-                    },
-                }),
-            ),
-            dynamodb.send(
-                new QueryCommand({
-                    TableName: process.env.STOCKS_TABLE_NAME,
-                    KeyConditionExpression: "product_id = :product_id",
-                    ExpressionAttributeValues: { ":product_id": id },
-                }),
-            ),
-        ]);
-
-        if (!products.Items) {
-            return {
-                statusCode: 404,
-                body: JSON.stringify({ message: `Product with ${id} does not exist` }),
-            };
-        }
-
-        if (!stocks.Items) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ message: `Sock for product with ${id} does not exist` }),
-            };
-        }
-
-        const { count = 0 } = stocks.Items.at(0);
+        const product = await getProductById(
+            id,
+            process.env.PRODUCTS_TABLE_NAME,
+            process.env.STOCKS_TABLE_NAME
+        );
 
         console.log(`GET_PRODUCT_REQUEST: SUCCESS`);
 
         return {
             statusCode: 200,
-            body: JSON.stringify(
-                {
-                    ...products.Items.at(0),
-                    ...{ count },
-                }
-            ),
+            body: JSON.stringify(product),
         };
     } catch (error) {
         console.log(error);

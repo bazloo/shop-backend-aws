@@ -1,9 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { randomUUID } from "node:crypto";
-import { DynamoDB } from '@aws-sdk/client-dynamodb';
-import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
-
-const dynamodb = new DynamoDB();
+import { createProduct } from "../repository";
 
 export const handler = async (event: APIGatewayProxyEvent) => {
     console.log(`CREATE_PRODUCT_REQUEST: body params: ${event.body}`);
@@ -15,13 +11,13 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             };
         }
 
-        const { title, description, price, count } = JSON.parse(event.body);
+        const data = JSON.parse(event.body);
 
         if (
-            !title ||
-            !description ||
-            (!price || isNaN(parseInt(price))) ||
-            (!count || isNaN(parseInt(count)))
+            !data.title ||
+            !data.description ||
+            (!data.price || isNaN(parseInt(data.price))) ||
+            (!data.count || isNaN(parseInt(data.count)))
         ) {
             console.log(`CREATE_PRODUCT_REQUEST: Missing or invalid body params`);
             return {
@@ -30,39 +26,16 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             };
         }
 
-        const id = randomUUID();
-
-        await dynamodb.send(
-            new TransactWriteCommand({
-                TransactItems: [
-                    {
-                        Put: {
-                            TableName: process.env.PRODUCTS_TABLE_NAME,
-                            Item: {
-                                id,
-                                title,
-                                description,
-                                price,
-                            },
-                        },
-                    },
-                    {
-                        Put: {
-                            TableName: process.env.STOCKS_TABLE_NAME,
-                            Item: {
-                                product_id: id,
-                                count,
-                            },
-                        },
-                    },
-                ],
-            }),
+        const product = await createProduct(
+            data,
+            process.env.PRODUCTS_TABLE_NAME,
+            process.env.STOCKS_TABLE_NAME,
         );
 
         console.log(`CREATE_PRODUCT_REQUEST: CREATED`);
         return {
             statusCode: 201,
-            body: JSON.stringify({}),
+            body: JSON.stringify(product),
         };
     } catch (error) {
         console.log(error);

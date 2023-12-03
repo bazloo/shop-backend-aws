@@ -21,7 +21,7 @@ class DeployStack extends NestedStack {
             }
         }
 
-        // TODO fix automatic staging, now have to choose stage manually after deployment
+        // TODO fix cdk staging, now have to choose stage manually after cdk deploy
         // new Stage(this, 'store-stage', { deployment, stageName: 'dev' });
     }
 }
