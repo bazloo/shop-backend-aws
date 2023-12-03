@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { ProductService } from './services/product-service/product-service-stack';
+import { ProductService } from './src/product-service/product-service-stack';
 import {Cors, Deployment, Method, RestApi} from "aws-cdk-lib/aws-apigateway";
 import { NestedStack, Stack, StackProps, Stage } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import  { ImportService } from "./services/import-service/import-service-stack";
+import  { ImportService } from "./src/import-service/import-service-stack";
 
 class DeployStack extends NestedStack {
     constructor(scope: Construct, props: { restApiId: string; methods: Method[] } & StackProps) {

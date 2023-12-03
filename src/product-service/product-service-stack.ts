@@ -31,19 +31,19 @@ export class ProductService extends NestedStack {
     });
 
     const getProductsList = new NodejsFunction(this, 'get-products-list', {
-      entry: 'services/product-service/lambdas/getProducts.ts',
+      entry: 'src/product-service/lambdas/getProducts.ts',
       handler: 'handler',
       environment,
     });
 
     const getProductById = new NodejsFunction(this, 'get-products-by-id', {
-      entry: 'services/product-service/lambdas/getProduct.ts',
+      entry: 'src/product-service/lambdas/getProduct.ts',
       handler: 'handler',
       environment,
     });
 
     const createProduct = new NodejsFunction(this, 'create-product', {
-      entry: 'services/product-service/lambdas/createProduct.ts',
+      entry: 'src/product-service/lambdas/createProduct.ts',
       handler: 'handler',
       environment,
     });

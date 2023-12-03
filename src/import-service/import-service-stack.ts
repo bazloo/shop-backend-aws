@@ -6,6 +6,8 @@ import {Bucket, EventType} from "aws-cdk-lib/aws-s3";
 import { LambdaDestination } from "aws-cdk-lib/aws-s3-notifications";
 import { PolicyStatement, Effect } from '@aws-cdk/aws-iam';
 
+const BUCKET_NAME = '';
+
 export class ImportService extends NestedStack {
     public readonly methods: Method[] = [];
 
@@ -17,6 +19,7 @@ export class ImportService extends NestedStack {
             rootResourceId: props.restApiRootResourceId,
         });
 
+        // import existing bucket from bucket name
         const bucket = Bucket.fromBucketName(
             this,
             'imports-bucket',
@@ -24,7 +27,7 @@ export class ImportService extends NestedStack {
         );
 
         const importProductsFile = new NodejsFunction(this, 'import-products-file', {
-            entry: 'services/import-service/lambdas/importProductFile.ts',
+            entry: 'src/import-service/lambdas/importProductFile.ts',
             handler: 'handler',
             environment: {
                 UPLOAD_BUCKET_NAME: 'store-imports-bucket',
@@ -33,7 +36,7 @@ export class ImportService extends NestedStack {
 
 
         const importFileParser = new NodejsFunction(this, 'import-file-parser', {
-            entry: 'services/import-service/lambdas/importFileParser.ts',
+            entry: 'src/import-service/lambdas/importFileParser.ts',
             handler: 'handler',
         });
 
@@ -51,6 +54,7 @@ export class ImportService extends NestedStack {
 
         bucket.grantPut(importProductsFile)
         bucket.grantRead(importFileParser);
+        bucket.grantDelete(importFileParser);
         bucket.addEventNotification(
             EventType.OBJECT_CREATED,
             new LambdaDestination(importFileParser),
@@ -59,10 +63,14 @@ export class ImportService extends NestedStack {
             }
         );
 
-        new PolicyStatement({
-            actions: ['s3:GetObject'],
-            resources: [bucket.arnForObjects('uploaded/*')],
-            effect: Effect.ALLOW,
-        });
+        // In our case we have created bucket manually with needed permissions and allowed cors settings
+
+        // Below is example how to add new policy if we would need it
+
+        // new PolicyStatement({
+        //     actions: ['s3:GetObject', "s3:PutObject"],
+        //     resources: [bucket.arnForObjects('*')],
+        //     effect: Effect.ALLOW,
+        // });
     }
 }
