@@ -10,7 +10,7 @@ import { Readable } from "node:stream";
 
 const s3Client = new S3Client();
 
-export const getObjectStream = async (Bucket: string, Key: string) => {
+export const getObjectStream = async (Bucket: string, Key: string)=> {
     const { Body } = await s3Client.send(
         new GetObjectCommand({
             Bucket,
@@ -18,7 +18,8 @@ export const getObjectStream = async (Bucket: string, Key: string) => {
         })
     )
 
-    return Body as Readable || undefined;
+    if (Body) return Body as Readable;
+    return undefined;
 };
 
 export const copyObject = (CopySource: string, Bucket: string, Key: string) => {

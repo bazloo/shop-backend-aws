@@ -32,6 +32,10 @@ jest.mock('../../../src/import-service/csv-parser', () => ({
     csvParser: jest.fn(() => Promise.resolve([['test']])),
 }));
 
+afterEach(() => {
+    jest.clearAllMocks();
+});
+
 describe('importFileParser:', () => {
     test('Called all internal functionality', async () => {
         await importFileParser(MOCKED_S3_EVENT);
@@ -39,5 +43,15 @@ describe('importFileParser:', () => {
         expect(csvParser).toHaveBeenCalled();
         expect(copyObject).toHaveBeenCalled();
         expect(deleteObject).toHaveBeenCalled();
+    });
+
+    test('Not called next methods after stream object is undefined', async () => {
+        jest.mocked(getObjectStream).mockReturnValue(Promise.reject());
+
+        await importFileParser(MOCKED_S3_EVENT);
+        expect(getObjectStream).toHaveBeenCalled();
+        expect(csvParser).toHaveBeenCalledTimes(0);
+        expect(copyObject).toHaveBeenCalledTimes(0)
+        expect(deleteObject).toHaveBeenCalledTimes(0)
     });
 });
