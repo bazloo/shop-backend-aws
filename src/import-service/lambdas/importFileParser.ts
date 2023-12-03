@@ -5,7 +5,7 @@ import {
     DeleteObjectCommand,
     S3Client,
 } from "@aws-sdk/client-s3";
-import { getObjectStream, copyObject, deleteObject } from "../bucket-commands";
+import { getObjectStream, copyObject, deleteObject } from "../bucket-actions";
 import { csvParser } from "../csv-parser";
 
 import { parse } from "csv-parse";
