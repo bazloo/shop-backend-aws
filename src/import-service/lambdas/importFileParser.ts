@@ -26,7 +26,6 @@ export const handler = async (event: S3Event) => {
             const readStream = await getObjectStream(bucketName, originFilePath);
 
             if (readStream) {
-                console.log(readStream);
                 await csvParser(readStream);
 
                 console.log(`PARSER: finished parsing file: ${fileName}`);

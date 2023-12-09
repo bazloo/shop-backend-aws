@@ -11,7 +11,7 @@ const BUCKET_NAME = '';
 export class ImportService extends NestedStack {
     public readonly methods: Method[] = [];
 
-    constructor(scope: Construct, props: { restApiId: string, restApiRootResourceId: string } & StackProps) {
+    constructor(scope: Construct, props: { restApiId: string, restApiRootResourceId: string, queArn: string  } & StackProps) {
         super(scope, 'import-service', props);
 
         const api = RestApi.fromRestApiAttributes(this, 'import-rest-api', {
