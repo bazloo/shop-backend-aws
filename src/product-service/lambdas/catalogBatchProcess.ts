@@ -1,6 +1,6 @@
 import { SQSEvent } from 'aws-lambda';
 import { createProduct } from '../repository';
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
 const snsClient = new SNSClient();
 
@@ -25,7 +25,7 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 
         await snsClient.send(
             new PublishCommand({
-                Subject: `New products ${extraPrice ? 'with extra' : 'regular'} price added to the store catalog`,
+                Subject: `New products with ${extraPrice ? 'extra' : 'regular'} price added to the store catalog`,
                 TopicArn: process.env.TOPIC_ARN,
                 Message: event.Records.map(({ body }) => body).join('\n'),
                 MessageAttributes: {
