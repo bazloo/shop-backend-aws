@@ -4,9 +4,8 @@ import {LambdaIntegration, Method, RestApi,} from 'aws-cdk-lib/aws-apigateway';
 import {NodejsFunction} from 'aws-cdk-lib/aws-lambda-nodejs';
 import {Bucket, EventType} from "aws-cdk-lib/aws-s3";
 import { LambdaDestination } from "aws-cdk-lib/aws-s3-notifications";
-import { PolicyStatement, Effect } from '@aws-cdk/aws-iam';
-
-const BUCKET_NAME = '';
+import * as sqs from "aws-cdk-lib/aws-sqs";
+import { PolicyStatement, Effect } from "@aws-cdk/aws-iam";
 
 export class ImportService extends NestedStack {
     public readonly methods: Method[] = [];
@@ -18,6 +17,8 @@ export class ImportService extends NestedStack {
             restApiId: props.restApiId,
             rootResourceId: props.restApiRootResourceId,
         });
+
+        const catalogItemsQueue = sqs.Queue.fromQueueArn(this, 'catalog-items-queue', props.queArn);
 
         // import existing bucket from bucket name
         const bucket = Bucket.fromBucketName(
@@ -34,10 +35,13 @@ export class ImportService extends NestedStack {
             }
         });
 
-
         const importFileParser = new NodejsFunction(this, 'import-file-parser', {
             entry: 'src/import-service/lambdas/importFileParser.ts',
             handler: 'handler',
+            environment: {
+                UPLOAD_BUCKET_NAME: 'store-imports-bucket',
+                QUEUE_URL: catalogItemsQueue.queueUrl,
+            }
         });
 
         const importRoute = api.root.addResource('import');
@@ -52,7 +56,10 @@ export class ImportService extends NestedStack {
 
         this.methods = [method];
 
-        bucket.grantPut(importProductsFile)
+        catalogItemsQueue.grantSendMessages(importFileParser);
+
+        bucket.grantPut(importProductsFile);
+        bucket.grantPut(importFileParser);
         bucket.grantRead(importFileParser);
         bucket.grantDelete(importFileParser);
         bucket.addEventNotification(
@@ -68,7 +75,7 @@ export class ImportService extends NestedStack {
         // Below is example how to add new policy if we would need it
 
         // new PolicyStatement({
-        //     actions: ['s3:GetObject', "s3:PutObject"],
+        //     actions: ['s3:GetObject', "s3:PutObject",],
         //     resources: [bucket.arnForObjects('*')],
         //     effect: Effect.ALLOW,
         // });
