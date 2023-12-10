@@ -1,6 +1,5 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb';
 import {QueryCommand, ScanCommand, TransactWriteCommand} from '@aws-sdk/lib-dynamodb';
-import {create} from "domain";
 import {randomUUID} from "node:crypto";
 
 const dynamodb = new DynamoDB();
@@ -25,7 +24,7 @@ export const getProducts = async (productsTableName: string, stocksTableName: st
         products &&
         products.Items
     ) {
-        const stocksMap = stocks.Items.reduce((acc: Map<string, { count: number }>, item: { product_id: string, count: number}) => {
+        const stocksMap = stocks.Items.reduce((acc: Map<string, { count: number }>, item: { product_id: string, count: number }) => {
             acc.set(item.product_id, { count: item.count });
             return acc;
         }, new Map()) as Map<string, { count: number }>
@@ -91,7 +90,7 @@ export const createProduct = async (data: {
             TransactItems: [
                 {
                     Put: {
-                        TableName: process.env.PRODUCTS_TABLE_NAME,
+                        TableName: productsTableName,
                         Item: {
                             id,
                             title,
@@ -102,7 +101,7 @@ export const createProduct = async (data: {
                 },
                 {
                     Put: {
-                        TableName: process.env.STOCKS_TABLE_NAME,
+                        TableName: stocksTableName,
                         Item: {
                             product_id: id,
                             count,
