@@ -28,8 +28,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
         const product = await createProduct(
             data,
-            process.env.PRODUCTS_TABLE_NAME,
-            process.env.STOCKS_TABLE_NAME,
+            process.env.PRODUCTS_TABLE_NAME!,
+            process.env.STOCKS_TABLE_NAME!,
         );
 
         console.log(`CREATE_PRODUCT_REQUEST: CREATED`);

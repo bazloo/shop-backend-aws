@@ -1,17 +1,11 @@
 import { S3Event } from 'aws-lambda';
-import {
-    GetObjectCommand,
-    CopyObjectCommand,
-    DeleteObjectCommand,
-    S3Client,
-} from "@aws-sdk/client-s3";
+import { SQSClient, SendMessageBatchCommand } from "@aws-sdk/client-sqs";
 import { getObjectStream, copyObject, deleteObject } from "../bucket-actions";
 import { csvParser } from "../csv-parser";
 
-import { parse } from "csv-parse";
-import { Readable } from "node:stream";
-
 const PARSED_FOLDER_NAME = 'parsed';
+
+const sqsClient = new SQSClient();
 
 export const handler = async (event: S3Event) => {
     console.log(`PARSER: file parser was triggered`);
@@ -26,8 +20,17 @@ export const handler = async (event: S3Event) => {
             const readStream = await getObjectStream(bucketName, originFilePath);
 
             if (readStream) {
-                console.log(readStream);
-                await csvParser(readStream);
+                const records = await csvParser(readStream) as object[]; // TODO add type
+
+                await sqsClient.send(
+                    new SendMessageBatchCommand({
+                        QueueUrl: process.env.QUEUE_URL!,
+                        Entries: records.map((item: object, index: number) => ({
+                            Id: index.toString(),
+                            MessageBody: JSON.stringify(item)
+                        }))
+                    }),
+                );
 
                 console.log(`PARSER: finished parsing file: ${fileName}`);
 

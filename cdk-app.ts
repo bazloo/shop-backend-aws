@@ -6,6 +6,9 @@ import {Cors, Deployment, Method, RestApi} from "aws-cdk-lib/aws-apigateway";
 import { NestedStack, Stack, StackProps, Stage } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import  { ImportService } from "./src/import-service/import-service-stack";
+import * as sqs from "aws-cdk-lib/aws-sqs";
+import * as sns from "aws-cdk-lib/aws-sns";
+import { EmailSubscription } from "aws-cdk-lib/aws-sns-subscriptions";
 
 class DeployStack extends NestedStack {
     constructor(scope: Construct, props: { restApiId: string; methods: Method[] } & StackProps) {
@@ -42,14 +45,20 @@ class RootStack extends Stack {
             },
         });
 
+        const catalogItemsQueue = new sqs.Queue(this, 'catalog-items-queue', {
+            queueName: 'catalogItemsQueue',
+        });
+
         const productsService = new ProductService(this, {
             restApiId: api.restApiId,
             restApiRootResourceId: api.restApiRootResourceId,
+            queArn: catalogItemsQueue.queueArn,
         });
 
         const importService = new ImportService(this, {
             restApiId: api.restApiId,
             restApiRootResourceId: api.restApiRootResourceId,
+            queArn: catalogItemsQueue.queueArn,
         });
 
         new DeployStack(this, {

@@ -32,7 +32,7 @@ const MOCKED_PROXY_EVENT = {
 } as APIGatewayProxyEvent;
 
 
-jest.mock('../mock-data/products', () => ({
+jest.mock('../mocked-data/products', () => ({
     getProducts: () => MOCKED_PRODUCTS,
 }));
 

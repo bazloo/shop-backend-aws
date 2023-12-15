@@ -1,5 +1,5 @@
 const { exec } = require("child_process");
-import { getProducts, getStocks } from "../mock-data/products";
+import { getProducts, getStocks } from "../mocked-data/products";
 import { dataToItem } from 'dynamo-converters';
 
 const productsTableName = 'Products';
