@@ -1,16 +1,29 @@
-import {NestedStack, StackProps} from 'aws-cdk-lib';
-import {Construct} from 'constructs';
-import {LambdaIntegration, Method, RestApi,} from 'aws-cdk-lib/aws-apigateway';
-import {NodejsFunction} from 'aws-cdk-lib/aws-lambda-nodejs';
-import {Bucket, EventType} from "aws-cdk-lib/aws-s3";
+import { NestedStack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import {
+    AuthorizationType,
+    LambdaIntegration,
+    Method,
+    RestApi,
+    TokenAuthorizer,
+    Cors,
+} from 'aws-cdk-lib/aws-apigateway';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Bucket, EventType } from "aws-cdk-lib/aws-s3";
 import { LambdaDestination } from "aws-cdk-lib/aws-s3-notifications";
 import * as sqs from "aws-cdk-lib/aws-sqs";
-import { PolicyStatement, Effect } from "@aws-cdk/aws-iam";
 
 export class ImportService extends NestedStack {
     public readonly methods: Method[] = [];
 
-    constructor(scope: Construct, props: { restApiId: string, restApiRootResourceId: string, queArn: string  } & StackProps) {
+    constructor(
+        scope: Construct, props: {
+            restApiId: string,
+            restApiRootResourceId: string,
+            queArn: string,
+            tokenAuthorizer: TokenAuthorizer,
+        } & StackProps
+    ) {
         super(scope, 'import-service', props);
 
         const api = RestApi.fromRestApiAttributes(this, 'import-rest-api', {
@@ -49,9 +62,14 @@ export class ImportService extends NestedStack {
         const importIntegration = new LambdaIntegration(importProductsFile);
 
         const method = importRoute.addMethod('GET', importIntegration, {
-            requestParameters: {
-                "method.request.querystring.name": true,
-            }
+            authorizer: props.tokenAuthorizer,
+            authorizationType: AuthorizationType.CUSTOM,
+        });
+
+        importRoute.addCorsPreflight({
+            allowOrigins: Cors.ALL_ORIGINS,
+            allowHeaders: Cors.DEFAULT_HEADERS,
+            allowMethods: ["GET", "OPTIONS"],
         });
 
         this.methods = [method];
